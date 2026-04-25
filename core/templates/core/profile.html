@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+{% block title %} Profile · {{ user.username }} {% endblock %}
+
+{% block main %}
+
+<h1 style="font-size: 28px; margin-bottom: 20px;">👤 My Profile</h1>
+
+<div style="display:flex; gap:20px; flex-wrap:wrap;">
+
+    <!-- User Info Card -->
+    <div style="flex:1; min-width:260px; background:rgba(255,255,255,0.07); padding:20px; border-radius:12px;">
+        <h2 style="margin-bottom:10px;">User Information</h2>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+        <p><strong>Joined:</strong> {{ user.date_joined|date:"d M Y" }}</p>
+    </div>
+
+    <!-- Streak Card -->
+    <div style="flex:1; min-width:260px; background:rgba(255,201,71,0.18); border:1px solid #ffc947; padding:20px; border-radius:12px;">
+        <h2>🏆 Progress Stats</h2>
+        {% if streak %}
+    🔥 <strong>Current Streak:</strong> {{ streak.current_streak }} days <br>
+    🏆 <strong>Highest Streak:</strong> {{ streak.longest_streak }} days
+{% else %}
+    <p>No streak data yet — start learning to activate it 🔥</p>
+{% endif %}
+
+    </div>
+</div>
+
+<!-- Progress Summary -->
+<h2 style="margin-top:30px;">📌 Progress Summary</h2>
+{% if progress_data %}
+<table style="width:100%; margin-top:10px; border-collapse:collapse;">
+    <tr style="background:#333;">
+        <th style="padding:10px;">Language</th>
+        <th style="padding:10px;">Level</th>
+        <th style="padding:10px;">Completed</th>
+    </tr>
+    {% for row in progress_data %}
+    <tr style="border-bottom:1px solid #444;">
+        <td style="padding:10px;">{{ row.language }}</td>
+        <td style="padding:10px;">{{ row.level }}</td>
+        <td style="padding:10px;">{{ row.percentage }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p style="margin-top:10px; color:#aaa;">No progress yet. Start a roadmap to see results here.</p>
+{% endif %}
+
+{% endblock %}

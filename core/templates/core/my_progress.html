@@ -1,0 +1,130 @@
+{% extends "core/base.html" %}
+
+{% block title %}Skill Path Generator · My Progress{% endblock %}
+
+{% block main %}
+<div class="header">
+    <div class="title-block">
+        <div class="title-eyebrow">Your learning dashboard</div>
+        <div class="title-main">
+            <span class="title-highlight">My Progress</span>
+        </div>
+        <p class="subtitle">
+            This page summarises the languages and levels you are working on,
+            and shows your overall completion visually.
+        </p>
+    </div>
+</div>
+
+{# ---------- STREAK BANNER ---------- #}
+{% if streak %}
+<div style="
+    background: rgba(255, 201, 71, 0.18);
+    border: 1px solid #ffc947;
+    color: #ffde85;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+">
+    🔥 Current streak: <strong>{{ streak.current_streak }} days</strong>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    🏆 Longest streak: <strong>{{ streak.longest_streak }} days</strong>
+</div>
+{% endif %}
+
+{# ---------- MAIN CARD WITH CHART ---------- #}
+<div class="body-grid">
+    <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-title">Progress overview</div>
+
+        {% if example_progress %}
+            <p class="small-muted" style="margin-bottom: 10px;">
+                Each bar represents a language + level combination and your completion percentage.
+            </p>
+
+            <div style="position: relative; min-height: 260px; margin-top: 10px;">
+                <canvas id="progressChart"></canvas>
+            </div>
+        {% else %}
+            <p class="small-muted">
+                No progress data yet. Generate a skill path and mark some steps as learned to see your chart here.
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+{# ---------- CHART.JS SETUP (only if we have data) ---------- #}
+{% if example_progress %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const canvas = document.getElementById("progressChart");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+
+    const labels = [
+        {% for row in example_progress %}
+            "{{ row.language }} ({{ row.level }})"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const values = [
+        {% for row in example_progress %}
+            {{ row.completed }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Completion (%)",
+                data: values,
+                backgroundColor: "rgba(78, 140, 255, 0.55)",
+                borderColor: "rgba(78, 140, 255, 1)",
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function (value) {
+                            return value + "%";
+                        }
+                    },
+                    grid: {
+                        color: "rgba(148, 163, 184, 0.2)"
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return context.parsed.y + "% completed";
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+
+</script>
+{% endif %}
+{% endblock %}

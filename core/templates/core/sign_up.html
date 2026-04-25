@@ -1,0 +1,324 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Skill Path Generator · Sign Up{% endblock %}
+
+{% block main %}
+
+<style>
+    .password-meta {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 11px;
+    }
+
+    .strength-bar {
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(31, 41, 55, 0.9);
+        overflow: hidden;
+    }
+
+    .strength-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: inherit;
+        transition: width 0.2s ease, background 0.2s ease;
+    }
+
+    .strength-weak {
+        background: #ef4444; /* red */
+    }
+
+    .strength-medium {
+        background: #f59e0b; /* amber */
+    }
+
+    .strength-strong {
+        background: #22c55e; /* green */
+    }
+
+    .strength-very-strong {
+        background: #4ade80; /* lighter green */
+    }
+
+    .password-tooltip {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #9ca3af;
+    }
+
+    .tooltip-icon {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.8);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 600;
+        cursor: default;
+    }
+
+    .tooltip-content {
+        position: absolute;
+        left: 22px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #020617;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 11px;
+        line-height: 1.5;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.9);
+        color: #e5e7eb;
+        width: 260px;
+        display: none;
+        z-index: 10;
+    }
+
+    .password-tooltip:hover .tooltip-content {
+        display: block;
+    }
+
+    #strength-label {
+        font-size: 11px;
+        color: #9ca3af;
+    }
+</style>
+
+<div class="header" style="text-align:center;">
+    <div class="title-block" style="margin:0 auto;">
+        <div class="title-eyebrow">Create your account</div>
+        <div class="title-main" style="justify-content:center;">
+            <span class="title-highlight">Sign Up</span>
+        </div>
+        <p class="subtitle" style="margin:14px auto 0; text-align:center;">
+            Create an account so that your future learning paths and progress can be personalized.
+        </p>
+    </div>
+</div>
+
+<!-- Center the card -->
+<div class="content" style="display:flex; justify-content:center;">
+    <div class="card" style="max-width: 480px; width:100%; margin:0 auto;">
+        <div class="card-header">
+            <h2>Sign Up</h2>
+            <div class="pill-soft">New user</div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <!-- Username -->
+                <div class="field-group">
+                    <label for="username">Username</label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        style="width:100%;border-radius:12px;border:1px solid rgba(75,85,99,.9);
+                               padding:10px 12px;background:#020617;color:#e5e7eb;font-size:13px;"
+                    >
+                </div>
+
+                <!-- Email -->
+                <div class="field-group">
+                    <label for="email">Email (optional)</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        style="width:100%;border-radius:12px;border:1px solid rgba(75,85,99,.9);
+                               padding:10px 12px;background:#020617;color:#e5e7eb;font-size:13px;"
+                    >
+                </div>
+
+                <!-- Password with eye toggle + strength meter + tooltip -->
+                <div class="field-group">
+                    <label for="password1">Password</label>
+                    <div class="select-wrapper">
+                        <input
+                            id="password1"
+                            name="password1"
+                            type="password"
+                            required
+                            style="width:100%;border-radius:12px;border:1px solid rgba(75,85,99,.9);
+                                   padding:10px 38px 10px 12px;background:#020617;color:#e5e7eb;font-size:13px;"
+                            oninput="updatePasswordStrength(this.value)"
+                        >
+                        <button
+                            type="button"
+                            onclick="togglePassword('password1', this)"
+                            style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                                   background:none; border:none; cursor:pointer; padding:0;"
+                        >
+                            <!-- Eye open icon -->
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24">
+                                <path d="M2 12C4.5 7 8.5 4 12 4s7.5 3 10 8c-2.5 5-6.5 8-10 8S4.5 17 2 12z"
+                                      fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <circle cx="12" cy="12" r="3"
+                                        fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                            </svg>
+                            <!-- Eye closed icon -->
+                            <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" style="display:none;">
+                                <path d="M2 12C4.5 7 8.5 4 12 4s7.5 3 10 8c-2.5 5-6.5 8-10 8S4.5 17 2 12z"
+                                      fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <circle cx="12" cy="12" r="3"
+                                        fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <line x1="4" y1="4" x2="20" y2="20"
+                                      stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Strength meter + tooltip -->
+                    <div class="password-meta">
+                        <div class="strength-bar">
+                            <div id="strength-fill" class="strength-fill"></div>
+                        </div>
+                        <span id="strength-label">Password strength: —</span>
+                        <div class="password-tooltip">
+                            <span class="tooltip-icon">i</span>
+                            <div class="tooltip-content">
+                                Use a strong password:<br>
+                                • At least 8 characters<br>
+                                • One uppercase letter (A–Z)<br>
+                                • One lowercase letter (a–z)<br>
+                                • One number (0–9)<br>
+                                • One special character (@, #, $, %, &amp;, etc.)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirm password with eye toggle -->
+                <div class="field-group">
+                    <label for="password2">Confirm Password</label>
+                    <div class="select-wrapper">
+                        <input
+                            id="password2"
+                            name="password2"
+                            type="password"
+                            required
+                            style="width:100%;border-radius:12px;border:1px solid rgba(75,85,99,.9);
+                                   padding:10px 38px 10px 12px;background:#020617;color:#e5e7eb;font-size:13px;"
+                        >
+                        <button
+                            type="button"
+                            onclick="togglePassword('password2', this)"
+                            style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                                   background:none; border:none; cursor:pointer; padding:0;"
+                        >
+                            <!-- Eye open icon -->
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24">
+                                <path d="M2 12C4.5 7 8.5 4 12 4s7.5 3 10 8c-2.5 5-6.5 8-10 8S4.5 17 2 12z"
+                                      fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <circle cx="12" cy="12" r="3"
+                                        fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                            </svg>
+                            <!-- Eye closed icon -->
+                            <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" style="display:none;">
+                                <path d="M2 12C4.5 7 8.5 4 12 4s7.5 3 10 8c-2.5 5-6.5 8-10 8S4.5 17 2 12z"
+                                      fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <circle cx="12" cy="12" r="3"
+                                        fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <line x1="4" y1="4" x2="20" y2="20"
+                                      stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {% if password_hint %}
+                <p class="helper-text" style="margin-top:6px;">{{ password_hint }}</p>
+            {% endif %}
+
+            {% if error %}
+                <p class="helper-text" style="color:#fca5a5;margin-top:4px;">{{ error }}</p>
+            {% endif %}
+
+            <div style="margin-top:12px; text-align:left;">
+                <button type="submit" class="btn-primary">
+                    Create account
+                    <span class="btn-icon">➜</span>
+                </button>
+                <p class="helper-text" style="margin-top:8px;">
+                    Already have an account?
+                    <a href="{% url 'sign_in' %}" style="color:#38bdf8;text-decoration:none;">Sign in</a>.
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    const eyeOpen = btn.querySelector('.eye-open');
+    const eyeClosed = btn.querySelector('.eye-closed');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (eyeOpen) eyeOpen.style.display = 'none';
+        if (eyeClosed) eyeClosed.style.display = 'block';
+    } else {
+        input.type = 'password';
+        if (eyeOpen) eyeOpen.style.display = 'block';
+        if (eyeClosed) eyeClosed.style.display = 'none';
+    }
+}
+
+function updatePasswordStrength(password) {
+    const fill = document.getElementById('strength-fill');
+    const label = document.getElementById('strength-label');
+    if (!fill || !label) return;
+
+    let score = 0;
+
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    let width = 0;
+    let text = 'Password strength: —';
+    fill.className = 'strength-fill';
+
+    if (!password) {
+        width = 0;
+        text = 'Password strength: —';
+    } else if (score <= 2) {
+        width = 30;
+        text = 'Password strength: Weak';
+        fill.classList.add('strength-weak');
+    } else if (score === 3) {
+        width = 60;
+        text = 'Password strength: Medium';
+        fill.classList.add('strength-medium');
+    } else if (score === 4) {
+        width = 85;
+        text = 'Password strength: Strong';
+        fill.classList.add('strength-strong');
+    } else if (score >= 5) {
+        width = 100;
+        text = 'Password strength: Very Strong';
+        fill.classList.add('strength-very-strong');
+    }
+
+    fill.style.width = width + '%';
+    label.textContent = text;
+}
+</script>
+{% endblock %}

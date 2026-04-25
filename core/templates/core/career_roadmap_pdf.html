@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Career Path · {{ role }}</title>
+    <style>
+        body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; }
+        h1 { font-size: 20px; margin-bottom: 10px; }
+        h2 { font-size: 14px; margin: 10px 0 5px 0; }
+        .step { border: 1px solid #ccc; padding: 8px; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Career Path · {{ role }}</h1>
+    <p>This roadmap outlines the major steps to become a {{ role }}.</p>
+
+    {% for step in steps %}
+        <div class="step">
+            <h2>Step {{ step.step_number }} · {{ step.title }}</h2>
+            <p>{{ step.description|linebreaks }}</p>
+        </div>
+    {% empty %}
+        <p>No roadmap defined yet for this role.</p>
+    {% endfor %}
+</body>
+</html>

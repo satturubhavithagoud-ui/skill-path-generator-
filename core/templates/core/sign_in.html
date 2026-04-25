@@ -1,0 +1,120 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Skill Path Generator · Sign In{% endblock %}
+
+{% block main %}
+<div class="header" style="text-align:center;">
+    <div class="title-block" style="margin:0 auto;">
+        <div class="title-eyebrow">Account access</div>
+        <div class="title-main" style="justify-content:center;">
+            <span class="title-highlight">Sign In</span>
+        </div>
+        <p class="subtitle" style="margin:14px auto 0; text-align:center;">
+            Use your username and password to access your saved skill paths and progress.
+        </p>
+    </div>
+</div>
+
+<!-- Center the card -->
+<div class="content" style="display:flex; justify-content:center;">
+    <div class="card" style="max-width: 460px; width:100%; margin:0 auto;">
+        <div class="card-header">
+            <h2>Sign In</h2>
+            <div class="pill-soft">Existing users</div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <!-- Username -->
+                <div class="field-group">
+                    <label for="username">Username</label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        style="width:100%;border-radius:12px;border:1px solid rgba(75,85,99,.9);
+                               padding:10px 12px;background:#020617;color:#e5e7eb;font-size:13px;"
+                    >
+                </div>
+                
+
+
+                <!-- Password with eye toggle -->
+                <div class="field-group">
+                    <label for="password">Password</label>
+                    <div class="select-wrapper">
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            required
+                            style="width:100%;border-radius:12px;border:1px solid rgba(75,85,99,.9);
+                                   padding:10px 38px 10px 12px;background:#020617;color:#e5e7eb;font-size:13px;"
+                        >
+                        <button
+                            type="button"
+                            onclick="togglePassword('password', this)"
+                            style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                                   background:none; border:none; cursor:pointer; padding:0;"
+                        >
+                            <!-- Eye open icon -->
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24">
+                                <path d="M2 12C4.5 7 8.5 4 12 4s7.5 3 10 8c-2.5 5-6.5 8-10 8S4.5 17 2 12z"
+                                      fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <circle cx="12" cy="12" r="3"
+                                        fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                            </svg>
+                            <!-- Eye closed icon -->
+                            <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" style="display:none;">
+                                <path d="M2 12C4.5 7 8.5 4 12 4s7.5 3 10 8c-2.5 5-6.5 8-10 8S4.5 17 2 12z"
+                                      fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <circle cx="12" cy="12" r="3"
+                                        fill="none" stroke="#9ca3af" stroke-width="1.6"/>
+                                <line x1="4" y1="4" x2="20" y2="20"
+                                      stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {% if error %}
+                <p class="helper-text" style="color:#fca5a5;margin-top:4px;">{{ error }}</p>
+            {% endif %}
+
+            <div style="margin-top:10px; text-align:left;">
+                <button type="submit" class="btn-primary">
+                    Sign In
+                    <span class="btn-icon">➜</span>
+                </button>
+                <p class="helper-text" style="margin-top:8px;">
+                    Don’t have an account?
+                    <a href="{% url 'sign_up' %}" style="color:#38bdf8;text-decoration:none;">Sign up</a>.
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    const eyeOpen = btn.querySelector('.eye-open');
+    const eyeClosed = btn.querySelector('.eye-closed');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (eyeOpen) eyeOpen.style.display = 'none';
+        if (eyeClosed) eyeClosed.style.display = 'block';
+    } else {
+        input.type = 'password';
+        if (eyeOpen) eyeOpen.style.display = 'block';
+        if (eyeClosed) eyeClosed.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

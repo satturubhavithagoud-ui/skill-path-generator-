@@ -1,0 +1,132 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Skill Path Generator{% endblock %}
+
+{% block main %}
+<div class="header">
+    <div class="title-block">
+        <div class="title-eyebrow">Interactive Skill Planner</div>
+        <div class="title-main">
+            <span class="title-highlight">Skill Path Generator</span>
+            <span class="title-dot"></span>
+        </div>
+        <p class="subtitle">
+            Choose what you want to focus on, your programming language, and your current skill level.
+            A clean summary will be generated that you can extend into a full roadmap for your project.
+        </p>
+    </div>
+</div>
+
+<!-- FULL-WIDTH CONTENT AREA -->
+<div class="content" style="display:flex; justify-content:center;">
+    <div class="card" style="width:100%; max-width:900px; margin:0 auto;">
+        <div class="card-header">
+            <h2>Configuration</h2>
+            <div class="pill-soft">Step 1 · Define your learning path</div>
+        </div>
+
+        <!-- sends selections to the roadmap page -->
+        <form method="get" action="{% url 'roadmap' %}">
+            <div class="form-row">
+
+                <!-- Select Mode -->
+                <div class="field-group">
+                    <label for="mode">Select Model / Mode</label>
+                    <div class="label-hint">
+                        Choose whether you want a generic career path or just focus on a language.
+                    </div>
+                    <select id="mode" name="mode" required>
+                        <option value="">Select an option</option>
+                        <option value="career" {% if selected.mode == "career" %}selected{% endif %}>Career Path</option>
+                        <option value="language" {% if selected.mode == "language" %}selected{% endif %}>Learn a Language</option>
+                    </select>
+                    <div class="select-arrow">▼</div>
+                </div>
+
+                <!-- Target Role (Career Path only) -->
+                <div class="field-group" id="role-field" style="display:none;">
+                    <label for="role">Target Role (Career Path)</label>
+                    <div class="label-hint">
+                        Pick the job title you are aiming for. You can use this in your roadmap explanation.
+                    </div>
+                    <select id="role" name="role">
+                        <option value="">Select a role</option>
+                        {% for r in roles %}
+                        <option value="{{ r }}" {% if selected.role == r %}selected{% endif %}>{{ r }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="select-arrow">▼</div>
+                </div>
+
+                <!-- Select Language (only for Learn a Language) -->
+                <div class="field-group" id="language-field">
+                    <label for="language">Select Language</label>
+                    <div class="label-hint">
+                        Choose the main technology stack for this skill path.
+                    </div>
+                    <select id="language" name="language">
+                        <option value="">Select a language</option>
+                        {% for lang in languages %}
+                        <option value="{{ lang }}" {% if selected.language == lang %}selected{% endif %}>
+                            {{ lang }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <div class="select-arrow">▼</div>
+                </div>
+
+                <!-- Select Level (only for Learn a Language) -->
+                <div class="field-group" id="level-field">
+                    <label for="level">Your Level</label>
+                    <div class="label-hint">
+                        Tell us where you are right now so the roadmap can start at the right depth.
+                    </div>
+                    <select id="level" name="level">
+                        <option value="">Select level</option>
+                        <option value="beginner" {% if selected.level == "beginner" %}selected{% endif %}>Beginner</option>
+                        <option value="intermediate" {% if selected.level == "intermediate" %}selected{% endif %}>Intermediate</option>
+                        <option value="advanced" {% if selected.level == "advanced" %}selected{% endif %}>Advanced</option>
+                    </select>
+                    <div class="select-arrow">▼</div>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn-primary" style="margin-top:14px;">
+                Generate Skill Path <span class="btn-icon">➜</span>
+            </button>
+
+            <p class="helper-text" style="margin-top:8px;">
+                This is your main project screen. In your project documentation, explain how each selection maps
+                to a detailed roadmap stored in the backend.
+            </p>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript to show/hide fields based on mode -->
+<script>
+function toggleFields() {
+    const mode = document.getElementById('mode').value;
+    const roleField = document.getElementById('role-field');
+    const languageField = document.getElementById('language-field');
+    const levelField = document.getElementById('level-field');
+
+    if (mode === "career") {
+        roleField.style.display = "block";
+        languageField.style.display = "none";
+        levelField.style.display = "none";
+    } else {
+        roleField.style.display = "none";
+        languageField.style.display = "block";
+        levelField.style.display = "block";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    toggleFields();
+    document.getElementById("mode").addEventListener("change", toggleFields);
+});
+</script>
+
+{% endblock %}

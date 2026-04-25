@@ -1,0 +1,63 @@
+{% extends "core/base.html" %}
+
+{% block main %}
+
+<style>
+    /* ===== Fix: make career roadmap readable in LIGHT theme ===== */
+    body.theme-light .career-page,
+    body.theme-light .career-page h1,
+    body.theme-light .career-page h2,
+    body.theme-light .career-page h3,
+    body.theme-light .career-page h4,
+    body.theme-light .career-page p,
+    body.theme-light .career-page li,
+    body.theme-light .career-page span {
+        color: #111827 !important;   /* dark gray text, overrides inline color */
+    }
+
+    /* Optional: make headings a bit bolder in light theme */
+    body.theme-light .career-page h1,
+    body.theme-light .career-page h2 {
+        font-weight: 700;
+    }
+</style>
+
+<div class="career-page roadmap-page" style="padding: 2rem;">
+  <h1 style="color: #fff; margin-bottom: 1rem;">
+    Career Path · {{ role }}
+  </h1>
+  <p style="color: #aaa; margin-bottom: 2rem;">
+    This roadmap outlines the major steps to become a {{ role }}.
+  </p>
+
+  <div class="roadmap-steps">
+    {% if steps %}
+      {% for step in steps %}
+      <div class="step-topics">
+        {{ step.description|linebreaks }}
+      </div>
+
+      <section class="roadmap-step-card"
+               style="margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 12px;
+                      background: rgba(255,255,255,0.03);">
+        <h2 style="color: #fff; margin-bottom: 0.5rem;">
+          Step {{ step.step_number }} · {{ step.title }}
+        </h2>
+        <p style="color: #ccc; white-space: pre-line;">
+          {{ step.description }}
+        </p>
+      </section>
+      {% endfor %}
+    {% else %}
+      <p style="color: #ccc;">No roadmap defined yet for this role.</p>
+    {% endif %}
+  </div>
+
+  <a href="{% url 'home' %}?mode=career&role={{ role|urlencode }}"
+     style="display:inline-block; padding:8px 16px; border-radius:20px;
+            background:#4e8cff; color:#fff; text-decoration:none; margin-top:20px;">
+      ⬅ Back to Home
+  </a>
+</div>
+
+{% endblock %}
